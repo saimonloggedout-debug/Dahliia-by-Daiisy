@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dahliia Investment — Transaction Verify | KFD-000219</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+ 
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+ 
+:root{
+  --red:#c0182a;--red-light:#e8253b;--red-dim:#8a0f1c;--red-pale:#2a0a0d;
+  --crimson:#ff3347;--crimson-glow:rgba(192,24,42,0.35);
+  --white:#ffffff;--white-soft:#f5f0f0;--white-dim:rgba(255,255,255,0.85);
+  --bg:#0a0608;--bg2:#110608;
+  --glass:rgba(255,255,255,0.03);--glass-b:rgba(255,255,255,0.08);
+  --glass-red:rgba(192,24,42,0.15);--glass-red-b:rgba(192,24,42,0.25);
+  --txt:#f5f0f0;--txt2:#9a8a8a;--txt3:#504040;
+  --success:#00d68f;--success-dim:#00a86b;
+  --danger:#ff4d6d;--r:18px;
+}
+ 
+html,body{min-height:100vh;background:var(--bg);font-family:'Inter',sans-serif;color:var(--txt);overflow-x:hidden}
+ 
+/* CANVAS */
+#pc{position:fixed;inset:0;z-index:0;pointer-events:none}
+ 
+/* ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:orbF 15s ease-in-out infinite}
+.o1{width:600px;height:600px;background:rgba(192,24,42,0.07);top:-180px;left:-150px;animation-delay:0s}
+.o2{width:440px;height:440px;background:rgba(255,255,255,0.025);bottom:-130px;right:-80px;animation-delay:6s}
+.o3{width:300px;height:300px;background:rgba(192,24,42,0.04);top:45%;left:50%;animation-delay:10s}
+@keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(28px,-20px) scale(1.04)}66%{transform:translate(-18px,26px) scale(0.97)}}
+ 
+/* WRAPPER */
+.wrap{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 70px}
+ 
+/* ── HEADER ── */
+.hdr{width:100%;max-width:960px;display:flex;justify-content:space-between;align-items:center;padding-bottom:22px;border-bottom:1px solid var(--glass-b);margin-bottom:30px}
+.hdr-brand{display:flex;flex-direction:column;gap:2px}
+.brand-main{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;letter-spacing:.08em;color:var(--white);line-height:1}
+.brand-sub{font-size:.68rem;letter-spacing:.22em;color:var(--txt2);text-transform:uppercase}
+.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.clock{font-family:'Space Grotesk',sans-serif;font-size:1.12rem;font-weight:600;color:var(--white-dim);letter-spacing:.06em}
+.date-lbl{font-size:.72rem;color:var(--txt2);letter-spacing:.03em}
+ 
+/* RED ACCENT LINE UNDER BRAND */
+.brand-accent{display:flex;align-items:center;gap:8px;margin-top:4px}
+.brand-line{height:2px;width:40px;background:linear-gradient(90deg,var(--red),transparent)}
+.brand-dot{width:4px;height:4px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red)}
+ 
+/* BADGES */
+.badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.badge{display:flex;align-items:center;gap:6px;padding:5px 13px;background:var(--glass);border:1px solid var(--glass-b);border-radius:100px;font-size:.68rem;color:var(--txt2);backdrop-filter:blur(12px);letter-spacing:.04em}
+.dot{width:5px;height:5px;border-radius:50%}
+.dot-r{background:var(--red-light);box-shadow:0 0 6px var(--red-light);animation:dPulse 2s infinite}
+.dot-w{background:rgba(255,255,255,0.7);box-shadow:0 0 4px rgba(255,255,255,0.4)}
+@keyframes dPulse{0%,100%{opacity:1}50%{opacity:.3}}
+ 
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:960px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+ 
+/* GLASS CARD */
+.gc{background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);backdrop-filter:blur(24px) saturate(160%);padding:26px;position:relative;overflow:hidden}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red-dim),transparent);opacity:.7}
+.slabel{font-size:.64rem;font-weight:600;letter-spacing:.18em;color:var(--red-light);text-transform:uppercase;margin-bottom:14px}
+ 
+/* ── INVESTOR CARD ── */
+.inv-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.inv-avatar{width:50px;height:50px;border-radius:13px;background:linear-gradient(135deg,var(--red-dim),var(--red));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 20px rgba(192,24,42,0.35)}
+.inv-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--white);line-height:1.35;margin-bottom:4px}
+.inv-id-row{display:flex;gap:5px;flex-wrap:wrap}
+.inv-tag{font-size:.65rem;padding:2px 9px;border-radius:100px;border:1px solid var(--glass-red-b);background:var(--glass-red);color:var(--red-light);letter-spacing:.04em}
+ 
+.inv-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:.76rem;gap:10px}
+.inv-row:last-child{border-bottom:none}
+.inv-row .lbl{color:var(--txt2);flex-shrink:0}
+.inv-row .val{color:var(--txt);font-weight:500;text-align:right}
+.inv-row .val.red{color:var(--white-soft)}
+.inv-row .val.em{color:var(--success)}
+ 
+/* ── VERIFY CARD ── */
+.vc{display:flex;flex-direction:column;gap:18px}
+.txn-lbl{font-size:.76rem;color:var(--txt2);margin-bottom:6px}
+.txn-in{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--glass-b);border-radius:11px;padding:13px 17px;font-size:.9rem;font-family:'Space Grotesk',sans-serif;color:var(--white);letter-spacing:.05em;outline:none;transition:border-color .25s,box-shadow .25s}
+.txn-in::placeholder{color:var(--txt3)}
+.txn-in:focus{border-color:var(--red-dim);box-shadow:0 0 0 3px rgba(192,24,42,0.12),0 0 18px rgba(192,24,42,0.06)}
+.txn-in:disabled{opacity:.5}
+ 
+.vbtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--red),var(--red-dim));border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);letter-spacing:.07em;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;box-shadow:0 4px 22px rgba(192,24,42,0.35)}
+.vbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%)}
+.vbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(192,24,42,0.5)}
+.vbtn:hover::after{transform:translateX(100%);transition:transform .5s}
+.vbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+ 
+/* PROGRESS */
+.prog-wrap{display:none}
+.prog-meta{display:flex;justify-content:space-between;font-size:.7rem;color:var(--txt2);margin-bottom:5px}
+.prog-bar{height:3px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--red-dim),var(--red-light));border-radius:100px;transition:width .1s linear;box-shadow:0 0 8px var(--crimson-glow)}
+ 
+/* STATUS BOX */
+.sbox{display:none;flex-direction:column;align-items:center;gap:12px;padding:22px;text-align:center;background:rgba(192,24,42,0.04);border:1px solid var(--glass-red-b);border-radius:13px}
+.sbox.on{display:flex;animation:fsIn .4s ease}
+@keyframes fsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+ 
+.ldr{width:58px;height:58px}
+.ldr svg{width:100%;height:100%;animation:spin 1.1s linear infinite}
+.ldr .tr{fill:none;stroke-width:2.5;stroke:rgba(255,255,255,0.05)}
+.ldr .ar{fill:none;stroke-width:2.5;stroke:var(--red-light);stroke-linecap:round;stroke-dasharray:100 200}
+@keyframes spin{to{transform:rotate(360deg)}}
+ 
+.tkw{display:none}
+.tkw.on{display:flex;align-items:center;justify-content:center}
+.tkcircle{width:58px;height:58px;border-radius:50%;background:rgba(0,214,143,0.08);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(0,214,143,0.28);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.tkpath{stroke-dasharray:60;stroke-dashoffset:60;animation:drawTk .5s .1s ease forwards}
+@keyframes drawTk{to{stroke-dashoffset:0}}
+ 
+.sm{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:600;color:var(--white)}
+.ss{font-size:.71rem;color:var(--txt2)}
+ 
+/* ERROR */
+.errm{font-size:.73rem;color:var(--danger);display:none;text-align:center;padding:9px;background:rgba(255,77,109,0.07);border-radius:9px;border:1px solid rgba(255,77,109,0.18)}
+.errm.on{display:block;animation:fsIn .3s ease}
+ 
+/* ── TIMELINE CARD ── */
+.tlc{grid-column:1/-1;display:none}
+.tlc.on{display:block;animation:fsIn .5s .2s ease both}
+ 
+.tl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.tl-dates{display:flex;gap:28px;flex-wrap:wrap}
+.dt-blk{text-align:right}
+.dt-lbl{font-size:.63rem;letter-spacing:.08em;color:var(--txt3);margin-bottom:2px;text-transform:uppercase}
+.dt-val{color:var(--txt);font-weight:500;font-size:.76rem}
+ 
+/* STEPS */
+.steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;align-items:flex-start}
+@media(max-width:620px){.steps{grid-template-columns:1fr;gap:18px}.conn{display:none}}
+ 
+.step{display:flex;flex-direction:column;align-items:center;text-align:center}
+.snode{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:all .4s ease}
+.snode.done{background:rgba(0,214,143,0.08);border:2px solid var(--success);box-shadow:0 0 16px rgba(0,214,143,0.2)}
+.snode.now{background:rgba(192,24,42,0.1);border:2px solid var(--red);box-shadow:0 0 22px rgba(192,24,42,0.35);animation:nPulse 2.5s infinite}
+.snode.fut{background:rgba(255,255,255,0.02);border:2px solid rgba(255,255,255,0.07)}
+@keyframes nPulse{0%,100%{box-shadow:0 0 22px rgba(192,24,42,0.35)}50%{box-shadow:0 0 40px rgba(192,24,42,0.65)}}
+.snode svg{width:17px;height:17px}
+.ic-done{color:var(--success)}.ic-now{color:var(--red-light)}.ic-fut{color:var(--txt3)}
+ 
+.conn{height:2px;margin-top:20px;width:100%;position:relative;overflow:hidden}
+.conn.dl{background:linear-gradient(90deg,var(--success-dim),var(--red-dim))}
+.conn.fl{background:rgba(255,255,255,0.06)}
+.cshine{position:absolute;top:0;left:-100%;width:60px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:cShine 3.5s 1.2s ease infinite}
+@keyframes cShine{0%,100%{left:-100%}60%{left:130%}}
+ 
+.slbl{margin-top:9px;font-size:.68rem;color:var(--txt2);font-weight:500;line-height:1.4}
+.slbl.d{color:var(--success)}.slbl.a{color:var(--white-soft);font-weight:600}
+.stime{margin-top:3px;font-size:.64rem;color:var(--txt3);line-height:1.5}
+.stime.b{color:var(--txt2)}
+ 
+/* COUNTDOWN */
+.cdbar{margin-top:24px;background:rgba(192,24,42,0.06);border:1px solid rgba(192,24,42,0.2);border-radius:13px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.cd-blk{text-align:center}
+.cdn{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--white);line-height:1}
+.cdl{font-size:.6rem;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.cdsep{font-size:1.3rem;color:var(--red-dim);font-weight:300;align-self:flex-start;margin-top:4px}
+.cd-title{font-size:.64rem;color:var(--txt2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.big-pct{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--white)}
+.big-pbar{margin-top:7px;width:130px;height:3px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden}
+.big-pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--red-dim),var(--red-light));border-radius:100px;transition:width 1s linear;box-shadow:0 0 7px rgba(192,24,42,0.5)}
+ 
+/* ── CEO CARD ── */
+.ceo-card{grid-column:1/-1;background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);padding:24px 28px;position:relative;overflow:hidden;backdrop-filter:blur(24px)}
+.ceo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red-dim),transparent);opacity:.7}
+.ceo-inner{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap}
+ 
+/* FOUNDER ICON — SVG avatar */
+.ceo-icon-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.ceo-icon-ring{width:68px;height:68px;border-radius:50%;border:2px solid var(--red-dim);background:radial-gradient(circle at 38% 38%,rgba(192,24,42,0.2),rgba(10,6,8,0.6));display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(192,24,42,0.25),inset 0 1px 0 rgba(255,255,255,0.06)}
+.gov-badge{display:flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.3);border-radius:100px;white-space:nowrap}
+.gov-txt{font-size:.58rem;font-weight:600;letter-spacing:.08em;color:var(--success);text-transform:uppercase}
+ 
+.ceo-info{flex:1;min-width:200px}
+.ceo-name{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.ceo-title{font-size:.73rem;color:var(--txt2);margin-bottom:3px;letter-spacing:.02em}
+.ceo-co{font-size:.68rem;color:var(--txt3);margin-bottom:10px}
+.ceo-tagline{display:inline-block;font-family:'Playfair Display',serif;font-style:italic;font-size:.78rem;color:var(--red-light);letter-spacing:.03em;border-left:2px solid var(--red-dim);padding-left:9px;line-height:1.5}
+ 
+.ceo-seals{display:flex;flex-direction:column;justify-content:center;gap:8px;align-items:flex-end}
+.seal{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:.67rem;font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.seal-auth{background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.25);color:var(--success)}
+.seal-reg{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--txt2)}
+ 
+/* Divider */
+.hline{height:1px;background:linear-gradient(90deg,transparent,var(--glass-b),transparent);margin:18px 0}
+</style>
+</head>
+<body>
+<canvas id="pc"></canvas>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+ 
+<div class="wrap">
+ 
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="brand-main">KURTIISTIC</div>
+    <div class="brand-accent">
+      <div class="brand-line"></div>
+      <div class="brand-dot"></div>
+    </div>
+    <div class="brand-sub">Dahliia by Daiisy &nbsp;&middot;&nbsp; Investment Portal</div>
+  </div>
+  <div class="hdr-right">
+    <div class="clock" id="clk">--:--:--</div>
+    <div class="date-lbl" id="dt">Loading...</div>
+  </div>
+</header>
+ 
+<!-- BADGES -->
+<div class="badges">
+  <div class="badge"><span class="dot dot-r"></span> SSL Secured</div>
+  <div class="badge"><span class="dot dot-w"></span> Verified by Dahliia</div>
+  <div class="badge">KURTIISTIC Group</div>
+  <div class="badge">256-bit Encrypted</div>
+  <div class="badge">Live System</div>
+</div>
+ 
+<!-- MAIN GRID -->
+<div class="grid">
+ 
+  <!-- INVESTOR CARD -->
+  <div class="gc">
+    <div class="slabel">Investor Profile</div>
+    <div class="inv-top">
+      <div class="inv-avatar">
+        <!-- Person SVG icon -->
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="7" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="inv-name">MOHAMMAD ISFATUL ISLAM SAIMON</div>
+        <div class="inv-id-row">
+          <span class="inv-tag">KFD-000219</span>
+          <span class="inv-tag">KG-DBD-INV-2025-0052</span>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="inv-row"><span class="lbl">NID / Passport</span><span class="val">6481853395</span></div>
+    <div class="inv-row"><span class="lbl">Phone</span><span class="val" style="font-size:.72rem">01875206252 / 01345177504</span></div>
+    <div class="inv-row"><span class="lbl">Address</span><span class="val" style="font-size:.7rem">Holding 639, Satgoris Para,<br>Lohagara-4396, Chattogram</span></div>
+    <div class="inv-row"><span class="lbl">Referral Code</span><span class="val red">KFD3395</span></div>
+    <div class="hline"></div>
+    <div class="inv-row"><span class="lbl">Package</span><span class="val red">Equity Share — 10%</span></div>
+    <div class="inv-row"><span class="lbl">Investment</span><span class="val red">BDT 20,000</span></div>
+    <div class="inv-row"><span class="lbl">Duration</span><span class="val">6 Months</span></div>
+    <div class="inv-row"><span class="lbl">Maturity Benefit</span><span class="val" style="font-size:.71rem">Initial + 10% Return</span></div>
+    <div class="inv-row"><span class="lbl">Founder Bonus</span><span class="val red">+5% (If Applicable)</span></div>
+    <div class="inv-row"><span class="lbl">Status</span><span class="val em" id="invStatus">Pending Verification</span></div>
+  </div>
+ 
+  <!-- VERIFY CARD -->
+  <div class="gc vc" id="vc">
+    <div class="slabel">Transaction Verification</div>
+ 
+    <div>
+      <div class="txn-lbl">Transaction ID লিখুন</div>
+      <input class="txn-in" id="ti" type="text" placeholder="TXN-XXXXXXXXXXXXX" maxlength="28"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9\-]/g,'')">
+    </div>
+ 
+    <div class="errm" id="em">Valid Transaction ID দিন (যেমন: TXN-ABC123456)</div>
+ 
+    <button class="vbtn" id="vb" onclick="startVerify()">Verify Payment</button>
+ 
+    <div class="prog-wrap" id="pw">
+      <div class="prog-meta"><span id="pstep">Verifying...</span><span id="ppct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+    </div>
+ 
+    <div class="sbox" id="sb">
+      <div id="lw">
+        <div class="ldr"><svg viewBox="0 0 64 64"><circle class="tr" cx="32" cy="32" r="27"/><circle class="ar" cx="32" cy="32" r="27"/></svg></div>
+      </div>
+      <div class="tkw" id="tw">
+        <div class="tkcircle">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline class="tkpath" points="8,21 17,30 32,12" stroke="#00d68f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="sm" id="stm">Verifying Transaction ID...</div>
+      <div class="ss" id="sts">Please wait, this may take a few seconds</div>
+    </div>
+  </div>
+ 
+  <!-- CEO CARD -->
+  <div class="ceo-card">
+    <div class="slabel">Authorized Signatory</div>
+    <div class="ceo-inner">
+ 
+      <div class="ceo-icon-wrap">
+        <!-- Founder SVG icon — crown + person -->
+        <div class="ceo-icon-ring">
+          <svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Crown -->
+            <path d="M10 17 L14 10 L20 15 L26 10 L30 17 L28 24 H12 Z" stroke="rgba(255,255,255,0.75)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(192,24,42,0.18)"/>
+            <circle cx="14" cy="10" r="1.5" fill="rgba(255,255,255,0.6)"/>
+            <circle cx="20" cy="15" r="1.5" fill="rgba(255,255,255,0.6)"/>
+            <circle cx="26" cy="10" r="1.5" fill="rgba(255,255,255,0.6)"/>
+            <!-- Person below crown -->
+            <circle cx="20" cy="29" r="3.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.4"/>
+            <path d="M13 38c0-3.9 3.1-6 7-6s7 2.1 7 6" stroke="rgba(255,255,255,0.65)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <!-- Gov verified badge -->
+        <div class="gov-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L14.5 8H21L15.7 12L17.9 18.5L12 14.5L6.1 18.5L8.3 12L3 8H9.5Z" fill="#00d68f"/>
+          </svg>
+          <span class="gov-txt">Govt. Verified</span>
+        </div>
+      </div>
+ 
+      <div class="ceo-info">
+        <div class="ceo-name">Saimon Hossain</div>
+        <div class="ceo-title">Founder &amp; Chief Executive Officer (CEO)</div>
+        <div class="ceo-co">KURTIISTIC Group &nbsp;&middot;&nbsp; Dahliia by Daiisy</div>
+        <div class="ceo-tagline">Greatest Apparel Designer</div>
+      </div>
+ 
+      <div class="ceo-seals">
+        <div class="seal seal-auth">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Authorized Signatory
+        </div>
+        <div class="seal seal-reg">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Registered Entity
+        </div>
+        <div class="seal seal-reg">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          SSL 256-bit
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- TIMELINE CARD -->
+  <div class="gc tlc" id="tlc">
+    <div class="tl-hdr">
+      <div class="slabel" style="margin-bottom:0">Investment Timeline — KFD-000219</div>
+      <div class="tl-dates">
+        <div class="dt-blk"><div class="dt-lbl">Start</div><div class="dt-val" id="tlS">—</div></div>
+        <div class="dt-blk"><div class="dt-lbl">Maturity</div><div class="dt-val" id="tlE">—</div></div>
+      </div>
+    </div>
+ 
+    <div class="steps">
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="snode done">
+          <svg class="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="slbl d">Agreement<br>Issued</div>
+        <div class="stime" id="t1">—</div>
+      </div>
+      <div class="conn dl"><div class="cshine"></div></div>
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="snode done">
+          <svg class="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="slbl d">Payment<br>Received</div>
+        <div class="stime" id="t2">—</div>
+      </div>
+      <div class="conn dl"><div class="cshine"></div></div>
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="snode done">
+          <svg class="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="slbl d">Transaction<br>Verified</div>
+        <div class="stime b" id="t3">—</div>
+      </div>
+      <div class="conn dl"><div class="cshine"></div></div>
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="snode now">
+          <svg class="ic-now" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 8 12 12 14.5 14"/></svg>
+        </div>
+        <div class="slbl a">Investment<br>Started</div>
+        <div class="stime b" id="t4">—</div>
+      </div>
+      <div class="conn fl"></div>
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="snode fut">
+          <svg class="ic-fut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="slbl">Maturity<br><span style="color:var(--red-dim);font-size:.62rem">+6 Months</span></div>
+        <div class="stime b" id="t5">—</div>
+      </div>
+    </div>
+ 
+    <!-- COUNTDOWN -->
+    <div class="cdbar">
+      <div>
+        <div class="cd-title">Time Remaining to Maturity</div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div class="cd-blk"><div class="cdn" id="cdD">000</div><div class="cdl">Days</div></div>
+          <div class="cdsep">:</div>
+          <div class="cd-blk"><div class="cdn" id="cdH">00</div><div class="cdl">Hours</div></div>
+          <div class="cdsep">:</div>
+          <div class="cd-blk"><div class="cdn" id="cdM">00</div><div class="cdl">Mins</div></div>
+          <div class="cdsep">:</div>
+          <div class="cd-blk"><div class="cdn" id="cdS">00</div><div class="cdl">Secs</div></div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="cd-title">Investment Progress</div>
+        <div class="big-pct" id="bpct">0.00%</div>
+        <div class="cdl" style="margin-top:3px">Elapsed</div>
+        <div class="big-pbar"><div class="big-pfill" id="bpf"></div></div>
+      </div>
+    </div>
+  </div>
+ 
+</div><!-- /grid -->
+</div><!-- /wrap -->
+ 
+<script>
+/* PARTICLES — red + white palette */
+(function(){
+  const c=document.getElementById('pc'),ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function rsz(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  window.addEventListener('resize',rsz);rsz();
+  const cols=['rgba(192,24,42,','rgba(232,37,59,','rgba(255,255,255,','rgba(180,180,180,'];
+  for(let i=0;i<85;i++){
+    const col=cols[Math.floor(Math.random()*cols.length)];
+    pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.35,
+      vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
+      color:col+(Math.random()*.4+.07)+')',p:Math.random()*Math.PI*2,ps:Math.random()*.016+.004});
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.p+=p.ps;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*(0.7+0.3*Math.sin(p.p)),0,Math.PI*2);
+      ctx.fillStyle=p.color;ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<105){ctx.beginPath();ctx.strokeStyle=`rgba(192,24,42,${.05*(1-d/105)})`;ctx.lineWidth=.45;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+ 
+/* CLOCK */
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pad(n){return String(n).padStart(2,'0')}
+function updClock(){
+  const n=new Date();
+  document.getElementById('clk').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  document.getElementById('dt').textContent=`${DAYS[n.getDay()]}, ${n.getDate()} ${MONS[n.getMonth()]} ${n.getFullYear()}`;
+}
+updClock();setInterval(updClock,1000);
+ 
+/* HELPERS */
+function fD(d){return`${pad(d.getDate())} ${MONS[d.getMonth()]} ${d.getFullYear()}`}
+function fT(d){let h=d.getHours(),m=pad(d.getMinutes()),s=pad(d.getSeconds()),ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${m}:${s} ${ap}`}
+ 
+/* VERIFY */
+let vStart=null,matDate=null,cdInt=null;
+ 
+function startVerify(){
+  const txn=document.getElementById('ti').value.trim();
+  const em=document.getElementById('em');
+  em.classList.remove('on');
+  if(txn.length<5){em.classList.add('on');return;}
+  document.getElementById('vb').disabled=true;
+  document.getElementById('ti').disabled=true;
+  document.getElementById('pw').style.display='block';
+  const sb=document.getElementById('sb');
+  sb.classList.add('on');
+  document.getElementById('lw').style.display='block';
+  document.getElementById('tw').classList.remove('on');
+  document.getElementById('stm').textContent='Verifying Transaction ID...';
+  document.getElementById('sts').textContent='Please wait, this may take a few seconds';
+ 
+  const labels=[
+    'Initializing secure channel...',
+    'Contacting payment gateway...',
+    'Cross-checking transaction hash...',
+    'Validating investor record...',
+    'Confirming — almost done...'
+  ];
+  let li=0;
+  const lstep=setInterval(()=>{
+    if(li<labels.length){document.getElementById('stm').textContent=labels[li];li++;}
+    else clearInterval(lstep);
+  },800);
+ 
+  let pct=0;
+  const fill=document.getElementById('pf'),plbl=document.getElementById('ppct');
+  const pr=setInterval(()=>{
+    pct=Math.min(pct+100/(4200/60),100);
+    fill.style.width=pct+'%';plbl.textContent=Math.floor(pct)+'%';
+    if(pct>=100){clearInterval(pr);clearInterval(lstep);showSuccess(txn);}
+  },60);
+}
+ 
+function showSuccess(txn){
+  document.getElementById('lw').style.display='none';
+  document.getElementById('tw').classList.add('on');
+  document.getElementById('stm').textContent='Payment Verified Successfully';
+  document.getElementById('sts').textContent='Transaction ID: '+txn;
+  document.getElementById('sb').style.background='rgba(0,214,143,0.05)';
+  document.getElementById('sb').style.borderColor='rgba(0,214,143,0.22)';
+  document.getElementById('invStatus').textContent='Verified & Active';
+  vStart=new Date();
+  matDate=new Date(vStart);matDate.setMonth(matDate.getMonth()+6);
+  setTimeout(()=>showTimeline(txn),900);
+}
+ 
+function showTimeline(txn){
+  const card=document.getElementById('tlc');
+  card.classList.add('on');
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('tlS').textContent=fD(vStart)+' — '+fT(vStart);
+  document.getElementById('tlE').textContent=fD(matDate);
+  const ag=new Date(vStart.getTime()-2*24*60*60*1000);
+  const py=new Date(vStart.getTime()-45*60*1000);
+  document.getElementById('t1').innerHTML=fD(ag)+'<br>Agreement Date';
+  document.getElementById('t2').innerHTML=fD(py)+'<br>'+fT(py);
+  document.getElementById('t3').innerHTML=fD(vStart)+'<br>'+fT(vStart);
+  document.getElementById('t4').innerHTML=fD(vStart)+'<br>'+fT(vStart);
+  document.getElementById('t5').innerHTML=fD(matDate)+'<br>Maturity Date';
+  startCD();
+}
+ 
+function startCD(){
+  if(cdInt)clearInterval(cdInt);
+  function tick(){
+    const now=new Date(),diff=matDate-now,total=matDate-vStart,el=now-vStart;
+    if(diff<=0){
+      document.getElementById('cdD').textContent='000';
+      ['H','M','S'].forEach(id=>document.getElementById('cd'+id).textContent='00');
+      document.getElementById('bpct').textContent='100.00%';
+      document.getElementById('bpf').style.width='100%';
+      clearInterval(cdInt);return;
+    }
+    const ts=Math.floor(diff/1000);
+    document.getElementById('cdD').textContent=String(Math.floor(ts/86400)).padStart(3,'0');
+    document.getElementById('cdH').textContent=pad(Math.floor(ts/3600)%24);
+    document.getElementById('cdM').textContent=pad(Math.floor(ts/60)%60);
+    document.getElementById('cdS').textContent=pad(ts%60);
+    const p=Math.min((el/total)*100,100);
+    document.getElementById('bpct').textContent=p.toFixed(2)+'%';
+    document.getElementById('bpf').style.width=p+'%';
+  }
+  tick();cdInt=setInterval(tick,1000);
+}
+</script>
+</body>
+</html>
+ 
